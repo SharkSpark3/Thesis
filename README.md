@@ -14,6 +14,10 @@ workflows.
 > edition removes embedded credentials, clears generated outputs, and uses Databricks
 > Unity Catalog Volume paths.
 
+## Thesis
+
+[Read the full thesis (PDF)](paper/GovReport_Thesis_1.1.pdf)
+
 ## Research workflow
 
 The experiments compare four model settings:
@@ -148,4 +152,3 @@ revoked before this repository is published.
 ## License
 
 The thesis text, code, and figures remain under the rights described in `LICENSE`.
-
