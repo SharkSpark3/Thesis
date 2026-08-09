@@ -114,13 +114,29 @@ keep `.env` untracked.
 
 ## Data
 
-The datasets and generated artifacts are deliberately excluded from Git:
+The research uses two public, CC BY 4.0 datasets:
 
-- Download public source datasets from their original providers.
-- Store reusable data, indexes, predictions, and evaluation tables in a Databricks
-  Unity Catalog Volume.
-- Record the dataset revision or commit hash used in the final thesis results.
-- Do not commit model weights, FAISS indexes, CSV/Parquet outputs, or API credentials.
+- [AllenAI QASPER](https://huggingface.co/datasets/allenai/qasper): question
+  answering over scientific papers. Notebook `01` reads the official train,
+  validation, and test Parquet splits from Hugging Face.
+- [LAUNCH GovReport-QS](https://huggingface.co/datasets/launch/gov_report_qs):
+  hierarchical question-summary annotations over government reports. Notebook `02`
+  converts the source JSONL files into normalized question-answer-evidence tables.
+
+The repository records provenance and preprocessing code without duplicating the
+complete datasets. On Databricks, source and processed files are stored under the
+example Unity Catalog Volume path:
+
+```text
+/Volumes/main/default/thesis_project/data/
+├── qasper/
+└── government_qa/
+```
+
+Reusable data, FAISS indexes, model weights, predictions, and evaluation tables are
+excluded from Git. For exact reproducibility, pin the Hugging Face dataset revision
+used for a final run and record it with the Databricks Runtime, model revision, and
+experiment metadata.
 
 ## Suggested execution order
 
