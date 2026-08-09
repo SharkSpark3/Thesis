@@ -1,3 +1,35 @@
+# Thesis RAG and Model Evaluation on Databricks
+
+This repository presents the code developed for a thesis comparing language-model
+approaches across two question-answering datasets:
+
+- **QASPER**, a question-answering dataset based on scientific papers.
+- **Government QA**, a question-answering collection derived from government reports.
+
+The project has been reorganized as a public portfolio demonstration of reproducible
+research, GitHub version control, and Databricks-based data and machine-learning
+workflows.
+
+> The original research notebooks were developed in Google Colab. This portfolio
+> edition removes embedded credentials, clears generated outputs, and uses Databricks
+> Unity Catalog Volume paths.
+
+## Research workflow
+
+The experiments compare four model settings:
+
+| Model | Description |
+| --- | --- |
+| M0 | Base language-model baseline |
+| M1 | Retrieval-augmented generation using semantic retrieval and FAISS |
+| M2 | LoRA-adapted model without retrieved context |
+| M3 | Retrieval-augmented generation combined with LoRA adaptation |
+
+The complete workflow is:
+
+```text
+Public datasets
+      ↓
 Data preparation and exploration
       ↓
 M0 baseline ─ M1 RAG ─ M2 LoRA ─ M3 RAG + LoRA
@@ -116,3 +148,4 @@ revoked before this repository is published.
 ## License
 
 The thesis text, code, and figures remain under the rights described in `LICENSE`.
+
