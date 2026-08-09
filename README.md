@@ -151,4 +151,7 @@ revoked before this repository is published.
 
 ## License
 
-The thesis text, code, and figures remain under the rights described in `LICENSE`.
+The project code is released under the [MIT License](LICENSE). The thesis PDF
+remains copyrighted by its author and is included for portfolio and scholarly
+review; the MIT License does not apply to the thesis text or third-party datasets,
+models, or other materials.
