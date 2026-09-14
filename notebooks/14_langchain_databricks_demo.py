@@ -8,8 +8,8 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text("catalog", "main")
-dbutils.widgets.text("schema", "thesis")
+dbutils.widgets.text("catalog", "workspace")
+dbutils.widgets.text("schema", "default")
 dbutils.widgets.text("volume", "thesis_project")
 dbutils.widgets.text("sample_size", "50")
 
@@ -24,9 +24,11 @@ OUTPUT_TABLE = f"{CATALOG}.{SCHEMA}.langchain_rag_demo_results"
 
 # COMMAND ----------
 
-spark.sql(f"CREATE CATALOG IF NOT EXISTS {CATALOG}")
-spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.{SCHEMA}")
-spark.sql(f"CREATE VOLUME IF NOT EXISTS {CATALOG}.{SCHEMA}.{VOLUME}")
+# The portfolio workspace already contains this managed Volume. Fail early with a
+# clear message when the bundle variables point to a path that does not exist.
+assert any(file.name.rstrip("/") == VOLUME for file in dbutils.fs.ls(f"/Volumes/{CATALOG}/{SCHEMA}")), (
+    f"Create the Unity Catalog Volume first: {VOLUME_ROOT}"
+)
 
 # COMMAND ----------
 
