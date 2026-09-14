@@ -1,0 +1,24 @@
+bundle:
+  name: thesis-rag-portfolio
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog
+    default: main
+  schema:
+    description: Unity Catalog schema
+    default: thesis
+  volume:
+    description: Unity Catalog volume
+    default: thesis_project
+
+targets:
+  dev:
+    default: true
+    mode: development
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+

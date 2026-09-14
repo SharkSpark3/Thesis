@@ -43,6 +43,25 @@ Result consolidation
 RAGAS, ROUGE, retrieval, and model comparison
 ```
 
+## Databricks + LangChain portfolio pipeline
+
+The original notebooks remain unchanged as the research record. A separate,
+lightweight production-style demonstration is provided in
+`notebooks/14_langchain_databricks_demo.py`. It uses:
+
+- Hugging Face Datasets to load a small QASPER validation sample;
+- LangChain `Document` objects and `RecursiveCharacterTextSplitter`;
+- `HuggingFaceEmbeddings` and a LangChain FAISS retriever;
+- `ChatOpenAI` for context-grounded generation;
+- a Unity Catalog Volume for the persisted vector index;
+- a Unity Catalog Delta table for generated answers;
+- MLflow for parameters and run metrics; and
+- a Databricks Declarative Automation Bundle for repeatable deployment as a job.
+
+This demonstration intentionally defaults to 50 papers and answers at most 10
+questions. It proves the end-to-end platform workflow without repeating the costly
+LoRA training runs from the thesis.
+
 ## Repository structure
 
 ```text
@@ -61,8 +80,13 @@ RAGAS, ROUGE, retrieval, and model comparison
 │   ├── 11_government_results_cleaning.ipynb
 │   ├── 12_qasper_evaluation.ipynb
 │   └── 13_government_evaluation.ipynb
+│   └── 14_langchain_databricks_demo.py
+├── resources/
+│   └── thesis_rag_job.yml
 ├── figures/
 ├── paper/
+├── databricks.yml
+├── requirements-demo.txt
 ├── .env.example
 ├── .gitignore
 └── requirements.txt
@@ -111,6 +135,22 @@ os.environ["OPENAI_API_KEY"] = dbutils.secrets.get(
 
 For local development, copy `.env.example` to `.env`, add your own credentials, and
 keep `.env` untracked.
+
+### Deploy the lightweight demo
+
+Install the current Databricks CLI, authenticate it to your workspace, and run from
+the repository root:
+
+```bash
+databricks bundle validate
+databricks bundle deploy -t dev
+databricks bundle run -t dev thesis_rag_demo
+```
+
+If your workspace does not permit creating objects under `main`, override the
+defaults with a catalog, schema, and volume where you have `USE`, `CREATE`, `READ
+VOLUME`, and `WRITE VOLUME` privileges. The notebook expects the OpenAI key in the
+Databricks secret scope `thesis` under the key `openai-api-key`.
 
 ## Data
 
