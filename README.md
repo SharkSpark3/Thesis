@@ -105,7 +105,7 @@ selected, publication-ready results for the GitHub project page.
 5. Either create the example path below or update the paths in the notebooks:
 
    ```text
-   /Volumes/main/default/thesis_project
+   /Volumes/workspace/default/thesis_project
    ```
 
 6. Attach a GPU-enabled compute resource for the model notebooks.
@@ -147,9 +147,10 @@ databricks bundle deploy -t dev
 databricks bundle run -t dev thesis_rag_demo
 ```
 
-If your workspace does not permit creating objects under `main`, override the
-defaults with a catalog, schema, and volume where you have `USE`, `CREATE`, `READ
-VOLUME`, and `WRITE VOLUME` privileges. The notebook expects the OpenAI key in the
+The included bundle defaults match the portfolio workspace path
+`workspace.default.thesis_project`. For another workspace, override the defaults
+with a catalog, schema, and volume where you have `USE`, `READ VOLUME`, and `WRITE
+VOLUME` privileges. The notebook expects the OpenAI key in the
 Databricks secret scope `thesis` under the key `openai-api-key`.
 
 ## Data

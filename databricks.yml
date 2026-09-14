@@ -7,10 +7,10 @@ include:
 variables:
   catalog:
     description: Unity Catalog catalog
-    default: main
+    default: workspace
   schema:
     description: Unity Catalog schema
-    default: thesis
+    default: default
   volume:
     description: Unity Catalog volume
     default: thesis_project
@@ -21,4 +21,3 @@ targets:
     mode: development
     workspace:
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
-
