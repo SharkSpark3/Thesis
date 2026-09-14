@@ -1,0 +1,30 @@
+resources:
+  jobs:
+    thesis_rag_demo:
+      name: thesis-rag-demo-${bundle.target}
+      tasks:
+        - task_key: langchain_rag_demo
+          notebook_task:
+            notebook_path: ../notebooks/14_langchain_databricks_demo.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              volume: ${var.volume}
+              sample_size: "50"
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              - datasets>=2.19
+              - faiss-cpu
+              - langchain>=1.0
+              - langchain-community
+              - langchain-huggingface
+              - langchain-openai
+              - langchain-text-splitters
+              - mlflow>=2.14
+              - pandas>=2.2
+              - pyarrow
+              - sentence-transformers
