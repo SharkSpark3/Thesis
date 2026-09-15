@@ -47,7 +47,9 @@ RAGAS, ROUGE, retrieval, and model comparison
 
 The original notebooks remain unchanged as the research record. A separate,
 lightweight production-style demonstration is provided in
-`notebooks/14_langchain_databricks_demo.py`. It uses:
+`notebooks/14_langchain_databricks_demo.py`. A companion notebook,
+`notebooks/15_evaluate_langchain_results.py`, evaluates the stored answers without
+making additional paid LLM calls. The pipeline uses:
 
 - Hugging Face Datasets to load a small QASPER validation sample;
 - LangChain `Document` objects and `RecursiveCharacterTextSplitter`;
@@ -56,6 +58,7 @@ lightweight production-style demonstration is provided in
 - a Unity Catalog Volume for the persisted vector index;
 - a Unity Catalog Delta table for generated answers;
 - MLflow for parameters and run metrics; and
+- deterministic exact-match and token-F1 evaluation against QASPER annotations; and
 - a Databricks Declarative Automation Bundle for repeatable deployment as a job.
 
 This demonstration intentionally defaults to 50 papers and answers at most 3
@@ -80,7 +83,8 @@ LoRA training runs from the thesis.
 │   ├── 11_government_results_cleaning.ipynb
 │   ├── 12_qasper_evaluation.ipynb
 │   ├── 13_government_evaluation.ipynb
-│   └── 14_langchain_databricks_demo.py
+│   ├── 14_langchain_databricks_demo.py
+│   └── 15_evaluate_langchain_results.py
 ├── resources/
 │   └── thesis_rag_job.yml
 ├── figures/
