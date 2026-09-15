@@ -24,11 +24,9 @@ OUTPUT_TABLE = f"{CATALOG}.{SCHEMA}.langchain_rag_demo_results"
 
 # COMMAND ----------
 
-# The portfolio workspace already contains this managed Volume. Fail early with a
-# clear message when the bundle variables point to a path that does not exist.
-assert any(file.name.rstrip("/") == VOLUME for file in dbutils.fs.ls(f"/Volumes/{CATALOG}/{SCHEMA}")), (
-    f"Create the Unity Catalog Volume first: {VOLUME_ROOT}"
-)
+# Validate the complete governed Volume path. Unity Catalog does not allow
+# listing an incomplete /Volumes/{catalog}/{schema} path.
+dbutils.fs.ls(VOLUME_ROOT)
 
 # COMMAND ----------
 
@@ -45,14 +43,22 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-# The secret scope/key must be created once in the Databricks workspace.
+# The Unity Catalog secret must be created once in Catalog Explorer. Databricks
+# redacts values returned by dbutils.secrets from notebook output and logs.
 os.environ["OPENAI_API_KEY"] = dbutils.secrets.get(
-    scope="thesis", key="openai-api-key"
+    catalog=CATALOG, schema=SCHEMA, key="openai_api_key"
 )
 
 # COMMAND ----------
 
-dataset = load_dataset("allenai/qasper", split=f"validation[:{SAMPLE_SIZE}]")
+data_files = {
+    "validation": "https://huggingface.co/datasets/allenai/qasper/resolve/refs%2Fconvert%2Fparquet/qasper/validation/0000.parquet"
+}
+dataset = load_dataset(
+    "parquet",
+    data_files=data_files,
+    split=f"validation[:{SAMPLE_SIZE}]",
+)
 
 documents = []
 questions = []
@@ -129,14 +135,24 @@ with mlflow.start_run(run_name="qasper-small-sample"):
             "chunk_overlap": 120,
         }
     )
-    for item in questions[:10]:
-        answer = rag_chain.invoke({"question": item["question"]})
-        results.append({**item, "answer": answer})
+    for item in questions[:3]:
+        raw_answer = rag_chain.invoke({"question": item["question"]})
+        answer_text = raw_answer.content if hasattr(raw_answer, "content") else str(raw_answer)
+        results.append(
+            {
+                "paper_id": str(item["paper_id"]),
+                "question": str(item["question"]),
+                "answer": answer_text,
+            }
+        )
     mlflow.log_metric("documents", len(documents))
     mlflow.log_metric("chunks", len(chunks))
     mlflow.log_metric("questions_answered", len(results))
 
-result_df = spark.createDataFrame(results)
+result_df = spark.createDataFrame(
+    results,
+    schema="paper_id STRING, question STRING, answer STRING",
+)
 result_df.write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(OUTPUT_TABLE)
 display(result_df)
 
