@@ -15,16 +15,17 @@ resources:
       environments:
         - environment_key: default
           spec:
-            environment_version: "4"
+            environment_version: "6"
             dependencies:
+              - idna==3.11
+              - protobuf==6.33.5
+              - wcwidth==0.2.13
               - datasets>=2.19
               - faiss-cpu
-              - langchain>=1.0
               - langchain-community
               - langchain-huggingface
               - langchain-openai
               - langchain-text-splitters
-              - mlflow>=2.14
-              - pandas>=2.2
-              - pyarrow
               - sentence-transformers
+              - openai
+              - transformers
