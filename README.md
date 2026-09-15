@@ -1,5 +1,10 @@
 # Thesis RAG and Model Evaluation on Databricks
 
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Databricks](https://img.shields.io/badge/Databricks-Serverless-FF3621?logo=databricks&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-RAG-1C3C3C)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 This repository presents the code developed for a thesis comparing language-model
 approaches across two question-answering datasets:
 
@@ -9,6 +14,10 @@ approaches across two question-answering datasets:
 The project has been reorganized as a public portfolio demonstration of reproducible
 research, GitHub version control, and Databricks-based data and machine-learning
 workflows.
+
+**Portfolio highlights:** an end-to-end LangChain RAG pipeline, governed storage in
+Unity Catalog, reproducible two-stage Databricks Workflow orchestration, MLflow
+tracking, and deterministic evaluation against public reference annotations.
 
 > The original research notebooks were developed in Google Colab. This portfolio
 > edition removes embedded credentials, clears generated outputs, and uses Databricks
@@ -57,13 +66,68 @@ making additional paid LLM calls. The pipeline uses:
 - `ChatOpenAI` for context-grounded generation;
 - a Unity Catalog Volume for the persisted vector index;
 - a Unity Catalog Delta table for generated answers;
-- MLflow for parameters and run metrics; and
-- deterministic exact-match and token-F1 evaluation against QASPER annotations; and
-- a Databricks Declarative Automation Bundle for repeatable deployment as a job.
+- MLflow for parameters and run metrics;
+- deterministic exact-match and token-F1 evaluation against QASPER annotations;
+- and a Databricks Declarative Automation Bundle for repeatable deployment as a job.
 
 This demonstration intentionally defaults to 50 papers and answers at most 3
 questions. It proves the end-to-end platform workflow without repeating the costly
 LoRA training runs from the thesis.
+
+### Architecture
+
+```text
+Hugging Face QASPER
+        │
+        ▼
+LangChain document loading and chunking
+        │
+        ▼
+MiniLM embeddings ──► FAISS index in a Unity Catalog Volume
+        │
+        ▼
+Retriever + prompt ──► GPT-4.1 mini
+        │
+        ▼
+Generated answers ──► Delta table ──► deterministic evaluation
+        │                                  │
+        └──────────────────────────────────┴──► MLflow tracking
+```
+
+The Databricks Workflow contains two ordered tasks:
+
+```text
+langchain_rag_demo ──(on success)──► evaluate_langchain_results
+```
+
+No recurring trigger is configured, which prevents unintended compute or API use.
+
+### Verified Databricks run
+
+The portfolio smoke test was successfully executed on **15 September 2026**.
+
+| Item | Verified value |
+| --- | ---: |
+| QASPER validation papers | 50 |
+| Text chunks indexed | 2,304 |
+| Questions answered | 3 |
+| Generation model | `gpt-4.1-mini` |
+| Embedding model | `sentence-transformers/all-MiniLM-L6-v2` |
+| Retriever `k` | 4 |
+| Mean token F1 | 0.1785 |
+| Exact match | 0.0000 |
+| Mean answer length | 41 words |
+| Additional LLM calls during evaluation | 0 |
+
+The generation run and evaluation run both completed successfully and were logged
+to the shared MLflow experiment. Generated answers are stored in
+`workspace.default.langchain_rag_demo_results`; per-answer evaluation records are
+stored in `workspace.default.langchain_rag_demo_evaluation`.
+
+These figures demonstrate that the deployment and tracking path works; they are not
+reported as research conclusions because the smoke test contains only three
+questions. Exact match is especially strict for generative answers, while token F1
+provides partial credit for overlap with QASPER references.
 
 ## Repository structure
 
@@ -190,6 +254,8 @@ experiment metadata.
 2. Run notebooks `04`–`09` to reproduce the four model settings.
 3. Run notebooks `10` and `11` to consolidate model outputs.
 4. Run notebooks `12` and `13` to calculate evaluation metrics.
+5. Run notebook `14` for the lightweight Databricks + LangChain demonstration.
+6. Run notebook `15` to evaluate its stored answers without additional LLM calls.
 
 Some model notebooks require substantial GPU memory. Compute type, model revision,
 random seed, and package versions should be recorded alongside published results.
@@ -202,7 +268,9 @@ random seed, and package versions should be recorded alongside published results
 - Hugging Face Datasets and Transformers
 - PEFT/LoRA fine-tuning
 - Retrieval-augmented generation and FAISS
-- RAGAS and ROUGE evaluation
+- MLflow experiment tracking
+- Databricks Workflows and Declarative Automation Bundles
+- RAGAS, ROUGE, exact-match, and token-F1 evaluation
 - Pandas, PyArrow, and reproducible experiment organization
 
 ## Security
