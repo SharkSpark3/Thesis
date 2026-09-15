@@ -58,7 +58,7 @@ lightweight production-style demonstration is provided in
 - MLflow for parameters and run metrics; and
 - a Databricks Declarative Automation Bundle for repeatable deployment as a job.
 
-This demonstration intentionally defaults to 50 papers and answers at most 10
+This demonstration intentionally defaults to 50 papers and answers at most 3
 questions. It proves the end-to-end platform workflow without repeating the costly
 LoRA training runs from the thesis.
 
@@ -79,7 +79,7 @@ LoRA training runs from the thesis.
 │   ├── 10_qasper_results_cleaning.ipynb
 │   ├── 11_government_results_cleaning.ipynb
 │   ├── 12_qasper_evaluation.ipynb
-│   └── 13_government_evaluation.ipynb
+│   ├── 13_government_evaluation.ipynb
 │   └── 14_langchain_databricks_demo.py
 ├── resources/
 │   └── thesis_rag_job.yml
@@ -108,8 +108,10 @@ selected, publication-ready results for the GitHub project page.
    /Volumes/workspace/default/thesis_project
    ```
 
-6. Attach a GPU-enabled compute resource for the model notebooks.
-7. Install dependencies from the repository:
+6. Use Serverless Standard environment v6 for the lightweight LangChain demo. The
+   original Mistral/LoRA notebooks require suitable GPU compute.
+7. Apply `requirements-demo.txt` to the lightweight demo environment. For the
+   original research notebooks, install:
 
    ```python
    %pip install -r requirements.txt
@@ -118,18 +120,16 @@ selected, publication-ready results for the GitHub project page.
 
 8. Store credentials as Databricks secrets. Do not paste credentials into notebooks.
 
-Example:
+The portfolio demo uses the governed Unity Catalog secret created in Catalog
+Explorer:
 
 ```python
 import os
 
-os.environ["HF_TOKEN"] = dbutils.secrets.get(
-    scope="thesis",
-    key="huggingface-token",
-)
 os.environ["OPENAI_API_KEY"] = dbutils.secrets.get(
-    scope="thesis",
-    key="openai-api-key",
+    catalog="workspace",
+    schema="default",
+    key="openai_api_key",
 )
 ```
 
@@ -150,8 +150,9 @@ databricks bundle run -t dev thesis_rag_demo
 The included bundle defaults match the portfolio workspace path
 `workspace.default.thesis_project`. For another workspace, override the defaults
 with a catalog, schema, and volume where you have `USE`, `READ VOLUME`, and `WRITE
-VOLUME` privileges. The notebook expects the OpenAI key in the
-Databricks secret scope `thesis` under the key `openai-api-key`.
+VOLUME` privileges. The notebook expects a Unity Catalog secret named
+`workspace.default.openai_api_key`; create it in Catalog Explorer and never paste
+the value into source code or a notebook cell.
 
 ## Data
 
@@ -169,7 +170,7 @@ complete datasets. On Databricks, source and processed files are stored under th
 example Unity Catalog Volume path:
 
 ```text
-/Volumes/main/default/thesis_project/data/
+/Volumes/workspace/default/thesis_project/data/
 ├── qasper/
 └── government_qa/
 ```
