@@ -12,6 +12,16 @@ resources:
               volume: ${var.volume}
               sample_size: "50"
           environment_key: default
+        - task_key: evaluate_langchain_results
+          depends_on:
+            - task_key: langchain_rag_demo
+          notebook_task:
+            notebook_path: ../notebooks/15_evaluate_langchain_results.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              sample_size: "50"
+          environment_key: default
       environments:
         - environment_key: default
           spec:
